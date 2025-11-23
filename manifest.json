@@ -1,0 +1,45 @@
+{
+  "manifest_version": 3,
+  "name": "TruthBuy",
+  "version": "1.5",
+  "description": "AI-powered Amazon product analyzer with Public Sentiment (Reddit/News) integration.",
+  "permissions": [
+    "activeTab",
+    "storage",
+    "scripting"
+  ],
+  "host_permissions": [
+    "https://truthbuy.onrender.com/*",
+    "https://www.amazon.in/*",
+    "https://www.amazon.com/*",
+    "https://www.amazon.co.uk/*",
+    "https://www.amazon.ca/*",
+    "https://www.amazon.de/*",
+    "https://www.amazon.com.au/*"
+  ],
+  "action": {
+    "default_title": "TruthBuy",
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.amazon.in/*",
+        "https://www.amazon.com/*",
+        "https://www.amazon.co.uk/*",
+        "https://www.amazon.ca/*",
+        "https://www.amazon.de/*",
+        "https://www.amazon.com.au/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "icons": {
+    "16": "icon16.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
+  }
+}

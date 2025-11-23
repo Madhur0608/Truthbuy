@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>TruthBuy</title>
+  <style>
+    :root {
+      --bg: #f8fafc; --card: #ffffff; --text: #0f172a; --muted: #64748b; --border: #e2e8f0;
+      --green: #16a34a; --orange: #ea580c; --red: #dc2626; --blue: #2563eb; --grey: #94a3b8;
+      --bg-green: #dcfce7; --bg-orange: #ffedd5; --bg-red: #fef2f2; --bg-grey: #f1f5f9;
+    }
+
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 0; font-family: -apple-system, system-ui, sans-serif; background: var(--bg); width: 360px; color: var(--text); }
+    .app-container { background: var(--card); min-height: 100vh; }
+    .hidden { display: none !important; }
+
+    /* Header */
+    .header { padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); background: #fff; position: sticky; top: 0; z-index: 10; }
+    .logo { font-size: 18px; font-weight: 800; color: var(--blue); letter-spacing: -0.5px; }
+    .status { font-size: 11px; color: var(--muted); font-weight: 600; text-transform: uppercase; }
+
+    /* States */
+    .center-msg { padding: 40px 20px; text-align: center; color: var(--muted); font-size: 13px; }
+    .error-icon { font-size: 32px; margin-bottom: 10px; display: block; }
+    .error-text { color: var(--red); margin-bottom: 15px; display: block; line-height: 1.4; font-weight: 500; }
+
+    /* Hero */
+    .hero { padding: 20px 16px; display: grid; grid-template-columns: 80px 1fr; gap: 20px; border-bottom: 1px solid var(--border); }
+    .score-val { font-size: 36px; font-weight: 800; line-height: 1; letter-spacing: -1px; margin-bottom: 4px; }
+    .verdict-badge { font-size: 11px; font-weight: 800; padding: 4px 8px; border-radius: 6px; text-transform: uppercase; display: inline-block; }
+    .breakdown { display: flex; flex-direction: column; gap: 6px; justify-content: center; }
+    .breakdown-item { display: flex; align-items: center; font-size: 11px; color: var(--muted); }
+    .bd-label { width: 70px; font-weight: 600; color: var(--text); }
+    .bar-container { flex: 1; height: 6px; background: #f1f5f9; border-radius: 99px; margin: 0 10px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 99px; }
+    .score-num { width: 20px; text-align: right; font-weight: 700; color: var(--text); }
+
+    /* Colors */
+    .text-green { color: var(--green); } .bg-green { background: var(--bg-green); }
+    .text-orange { color: var(--orange); } .bg-orange { background: var(--bg-orange); }
+    .text-red { color: var(--red); } .bg-red { background: var(--bg-red); }
+
+    /* Grid */
+    .grid-section { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid var(--border); }
+    .grid-col { padding: 12px 16px; }
+    .grid-col:first-child { border-right: 1px solid var(--border); }
+    .section-label { font-size: 10px; font-weight: 700; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; display: block; }
+    .uc-item { font-size: 11px; color: var(--text); margin-bottom: 4px; display: block; line-height: 1.3; font-weight: 500; }
+    .uc-item:before { content: "• "; color: var(--muted); }
+
+    /* External Signals (Reddit/News) */
+    .ext-section { padding: 16px; border-bottom: 1px solid var(--border); }
+    .ext-header { font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; display: flex; justify-content: space-between; }
+    .signal-card { 
+      padding: 10px; border-radius: 6px; margin-bottom: 8px; 
+      border: 1px solid var(--border); background: #fff;
+      display: flex; flex-direction: column; gap: 4px;
+      text-decoration: none; color: inherit; transition: transform 0.1s;
+    }
+    .signal-card:hover { transform: translateY(-1px); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+    .sc-reddit { border-left: 3px solid #ff4500; }
+    .sc-news { border-left: 3px solid #2563eb; }
+    .sig-top { display: flex; justify-content: space-between; align-items: center; }
+    .sig-source { font-size: 9px; font-weight: 700; display: flex; align-items: center; gap: 4px; }
+    .sig-sentiment { font-size: 9px; padding: 2px 6px; border-radius: 4px; font-weight: 600; }
+    .sent-pos { background: var(--bg-green); color: var(--green); }
+    .sent-neg { background: var(--bg-red); color: var(--red); }
+    .sent-neu { background: #f1f5f9; color: var(--muted); }
+    .sig-title { font-size: 11px; font-weight: 500; line-height: 1.3; color: var(--text); }
+    .icon-reddit { color: #ff4500; font-weight: 900; }
+    .icon-news { color: #2563eb; }
+
+    /* Risks */
+    .flags-section { padding: 16px; background: #fafafa; }
+    .flags-title { font-size: 12px; font-weight: 800; color: var(--text); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+    .issue-card { background: #fff; border: 1px solid var(--border); border-radius: 6px; padding: 10px 12px; margin-bottom: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.03); border-left: 4px solid #cbd5e1; }
+    .card-crit { border-left-color: var(--red); background: #fffdfd; border-color: #fecaca; }
+    .card-mod  { border-left-color: var(--orange); background: #fff; }
+    .card-min  { border-left-color: var(--grey); background: #f8fafc; }
+    .issue-header { display: flex; justify-content: space-between; margin-bottom: 6px; }
+    .cat-tag { font-size: 10px; font-weight: 700; color: var(--text); display: flex; align-items: center; gap: 4px; }
+    .source-tag { font-size: 9px; font-weight: 600; padding: 2px 6px; border-radius: 4px; }
+    .source-tag-crit { color: var(--red); background: #fee2e2; }
+    .source-tag-mod  { color: var(--orange); background: #ffedd5; }
+    .source-tag-min  { color: #475569; background: #e2e8f0; }
+    .issue-text { font-size: 11px; line-height: 1.4; color: #334155; }
+    .issue-list { margin: 0; padding-left: 18px; font-size: 11px; color: #334155; line-height: 1.4; }
+    .issue-list li { margin-bottom: 4px; }
+    .empty-state { font-size: 11px; color: var(--green); font-weight: 600; text-align: center; padding: 10px; background: var(--bg-green); border-radius: 6px; }
+
+    /* Comp */
+    .comp-section { padding: 16px; border-top: 1px solid var(--border); }
+    .comp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .comp-btn { background: #fff; border: 1px solid var(--border); padding: 8px; border-radius: 6px; font-size: 10px; font-weight: 600; color: var(--blue); cursor: pointer; text-align: center; transition: all 0.2s; width: 100%; }
+    .comp-btn:hover { border-color: var(--blue); background: #eff6ff; }
+
+    /* Footer */
+    .footer { padding: 0 16px 16px; }
+    details { font-size: 11px; color: var(--muted); cursor: pointer; }
+    summary { font-weight: 600; margin-bottom: 8px; color: var(--text); outline: none; }
+    .details-text { line-height: 1.5; padding: 10px; background: #f1f5f9; border-radius: 6px; font-size: 11px; color: #334155; }
+  </style>
+</head>
+<body>
+<div class="app-container">
+  <div class="header"><div class="logo">TruthBuy</div><div id="status" class="status">Init...</div></div>
+  <div id="loading-view" class="center-msg"><div style="font-size: 24px; margin-bottom:10px">⏳</div><div>Analyzing...</div></div>
+  <div id="error-view" class="center-msg hidden"><span class="error-icon">😕</span><span id="error-msg" class="error-text">Error.</span><button id="retry-btn" class="comp-btn">Try Again</button></div>
+
+  <div id="result" class="hidden">
+    <div class="hero">
+      <div class="score-badge"><div id="score-val" class="score-val">-</div><div id="verdict-badge" class="verdict-badge">-</div></div>
+      <div id="score-breakdown" class="breakdown"></div>
+    </div>
+    <div class="grid-section">
+      <div class="grid-col"><span class="section-label text-green">✅ Best For</span><div id="best-for"></div></div>
+      <div class="grid-col"><span class="section-label text-red">❌ Not For</span><div id="not-for"></div></div>
+    </div>
+    <div id="external-section" class="ext-section hidden">
+      <div class="ext-header"><span>🌐 Public Sentiment</span></div>
+      <div id="external-list"></div>
+    </div>
+    <div class="flags-section"><div class="flags-title">⚠️ Amazon Risks</div><div id="red-flags-list"></div></div>
+    <div class="comp-section"><div class="section-label" style="margin-bottom:8px">💡 Alternatives</div><div id="competitors-list" class="comp-grid"></div></div>
+    <div class="footer"><details><summary>View Full Analysis</summary><div id="details-content" class="details-text"></div></details></div>
+  </div>
+</div>
+<script src="popup.js"></script>
+</body>
+</html>
